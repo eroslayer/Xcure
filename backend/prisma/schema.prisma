@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ChildGender {
+  boy
+  girl
+}
+
+model User {
+  id          Int              @id @default(autoincrement())
+  phone       String           @unique
+  createdAt   DateTime         @default(now())
+  children    Child[]
+  assessments Assessment[]
+  detections  Detection[]
+  plans       TrainingPlan[]
+  checkins    TrainingCheckin[]
+  symptoms    Symptom[]
+}
+
+model Child {
+  id          Int              @id @default(autoincrement())
+  userId      Int
+  user        User             @relation(fields: [userId], references: [id])
+  name        String
+  gender      ChildGender
+  birthday    DateTime
+  age         Int
+  createdAt   DateTime         @default(now())
+  assessments Assessment[]
+  detections  Detection[]
+  plans       TrainingPlan[]
+  checkins    TrainingCheckin[]
+  symptoms    Symptom[]
+}
+
+model Assessment {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  childId       Int
+  user          User     @relation(fields: [userId], references: [id])
+  child         Child    @relation(fields: [childId], references: [id])
+  city          String
+  sensitivities String[]
+  note          String?
+  createdAt     DateTime @default(now())
+}
+
+model Detection {
+  id                    Int      @id @default(autoincrement())
+  userId                Int
+  childId               Int
+  user                  User     @relation(fields: [userId], references: [id])
+  child                 Child    @relation(fields: [childId], references: [id])
+  questionnaire         Json
+  nasalVentilationScore Int
+  sleepVentilationRisk  String
+  mouthBreathingTrend   String
+  actions               String[]
+  createdAt             DateTime @default(now())
+}
+
+model TrainingPlan {
+  id                 Int            @id @default(autoincrement())
+  userId             Int
+  childId            Int
+  user               User           @relation(fields: [userId], references: [id])
+  child              Child          @relation(fields: [childId], references: [id])
+  ageLevel           String
+  difficulty         String
+  recommendedMinutes Int
+  createdAt          DateTime       @default(now())
+  tasks              TrainingTask[]
+}
+
+model TrainingTask {
+  id           Int             @id @default(autoincrement())
+  planId       Int
+  plan         TrainingPlan    @relation(fields: [planId], references: [id])
+  name         String
+  targetMinutes Int
+  createdAt    DateTime        @default(now())
+  checkins     TrainingCheckin[]
+}
+
+model TrainingCheckin {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  childId          Int
+  taskId           Int
+  user             User     @relation(fields: [userId], references: [id])
+  child            Child    @relation(fields: [childId], references: [id])
+  task             TrainingTask @relation(fields: [taskId], references: [id])
+  completedMinutes Int
+  createdAt        DateTime @default(now())
+}
+
+model Symptom {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  childId   Int
+  user      User     @relation(fields: [userId], references: [id])
+  child     Child    @relation(fields: [childId], references: [id])
+  tags      String[]
+  severity  Int
+  note      String
+  createdAt DateTime @default(now())
+}

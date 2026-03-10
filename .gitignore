@@ -1,0 +1,15 @@
+node_modules
+.dist
+build
+coverage
+.env
+.env.*
+!.env.example
+.dart_tool
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache
+android/.gradle
+ios/Pods
+.DS_Store
